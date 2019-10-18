@@ -15,7 +15,7 @@ class OutputRegistry(Registry):
 output_registry = OutputRegistry()
 
 
-class Output:
+class Output(object):
     """Base class for writing/displaying the output of results
 
        options is a tuple of argparse options that can add

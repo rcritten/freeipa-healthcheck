@@ -13,7 +13,7 @@ from ipalib import api, errors
 from ipaplatform.paths import paths
 from ipaserver.install import certs
 from ipaserver.install import krainstance
-from ipapython.directivesetter import get_directive
+from ipaserver.install.installutils import get_directive
 from cryptography.hazmat.primitives.serialization import Encoding
 
 logger = logging.getLogger()

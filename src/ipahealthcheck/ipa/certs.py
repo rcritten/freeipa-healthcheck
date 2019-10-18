@@ -2,7 +2,7 @@
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, tzinfo, timedelta
 import logging
 import os
 import tempfile
@@ -16,9 +16,11 @@ from ipalib import api
 from ipalib import errors
 from ipalib import x509
 from ipalib.install import certmonger
+from ipalib.install import certstore
 from ipaplatform.paths import paths
 from ipaserver.install import certs
 from ipaserver.install import dsinstance
+from ipaserver.install import httpinstance
 from ipaserver.install import krainstance
 from ipaserver.install import krbinstance
 from ipaserver.install import installutils
@@ -36,7 +38,12 @@ def is_ipa_issued_cert(myapi, cert):
     if not myapi.Backend.ldap2.isconnected():
         return None
 
-    return certs.is_ipa_issued_cert(myapi, cert)
+    cacert_subject = certstore.get_ca_subject(
+        api.Backend.ldap2,
+        api.env.container_ca,
+        api.env.basedn)
+
+    return DN(cert.issuer) == cacert_subject
 
 
 def get_expected_requests(ca, ds, serverid):
@@ -168,23 +175,20 @@ def get_expected_requests(ca, ds, serverid):
     else:
         logger.debug('CA is not configured, skipping CA tracking')
 
-    cert = x509.load_certificate_from_file(paths.HTTPD_CERT_FILE)
-    issued = is_ipa_issued_cert(api, cert)
-    if issued is None:
-        logger.debug('Unable to determine if \'%s\' was issued by IPA '
-                     'because no LDAP connection, assuming yes.')
-    if issued or issued is None:
+    http = httpinstance.HTTPInstance()
+    http_nickname = http.get_mod_nss_nickname()
+    http_db = certs.CertDB(api.env.realm, nssdir=paths.HTTPD_ALIAS_DIR)
+    if http_db.is_ipa_issued_cert(api, http_nickname):
         requests.append(
             {
-                'cert-file': paths.HTTPD_CERT_FILE,
-                'key-file': paths.HTTPD_KEY_FILE,
+                'cert-database': paths.HTTPD_ALIAS_DIR,
+                'cert-nickname': http_nickname,
                 'ca-name': 'IPA',
                 'cert-postsave-command': template % 'restart_httpd',
             }
         )
     else:
-        logger.debug('HTTP cert not issued by IPA, \'%s\', skip tracking '
-                     'check', DN(cert.issuer))
+        logger.debug('HTTP cert not issued by IPA skip tracking check')
 
     # Check the ldap server cert if issued by IPA
     ds_nickname = ds.get_server_cert_nickname(serverid)
@@ -205,13 +209,11 @@ def get_expected_requests(ca, ds, serverid):
             }
         )
     else:
-        logger.debug('DS cert is not issued by IPA, \'%s\', skip tracking '
-                     'check', DN(cert.issuer))
+        logger.debug('HTTP cert not issued by IPA skip tracking check')
 
     # Check if pkinit is enabled
     if os.path.exists(paths.KDC_CERT):
         pkinit_request_ca = krbinstance.get_pkinit_request_ca()
-        cert = x509.load_certificate_from_file(paths.KDC_CERT)
         requests.append(
             {
                 'cert-file': paths.KDC_CERT,
@@ -244,6 +246,23 @@ def get_dogtag_cert_password():
     return ca_passwd
 
 
+# from https://docs.python.org/2/library/datetime.html
+class UTC(tzinfo):
+    """Bare representation of the UTC timezone"""
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+
+utc = UTC()
+
+
 @registry
 class IPACertmongerExpirationCheck(IPAPlugin):
     """
@@ -268,8 +287,8 @@ class IPACertmongerExpirationCheck(IPAPlugin):
                                      'nickname')
             notafter = request.prop_if.Get(certmonger.DBUS_CM_REQUEST_IF,
                                            'not-valid-after')
-            nafter = datetime.fromtimestamp(notafter, timezone.utc)
-            now = datetime.now(timezone.utc)
+            nafter = datetime.fromtimestamp(notafter, tz=utc)
+            now = datetime.now(utc)
 
             if now > nafter:
                 yield Result(self, constants.ERROR,
@@ -445,7 +464,7 @@ class IPACertTracking(IPAPlugin):
             # The criteria was not met
             if request_id is None:
                 flatten = ', '.join("{!s}={!s}".format(key, val)
-                                    for (key, val) in request.items())
+                                    for (key, val) in sorted(request.items()))
                 yield Result(self, constants.ERROR,
                              key=flatten,
                              msg='Missing tracking for %s' % flatten)
@@ -539,6 +558,8 @@ class IPANSSChainValidation(IPAPlugin):
         validate = []
         ca_pw_fname = None
 
+        http = httpinstance.HTTPInstance()
+
         if self.ca.is_configured():
             try:
                 ca_passwd = get_dogtag_cert_password()
@@ -568,6 +589,14 @@ class IPANSSChainValidation(IPAPlugin):
                 self.ds.get_server_cert_nickname(self.serverid),
                 os.path.join(dsinstance.config_dirname(self.serverid),
                              'pwdfile.txt'),
+            )
+        )
+
+        validate.append(
+            (
+                paths.HTTPD_ALIAS_DIR,
+                http.get_mod_nss_nickname(),
+                paths.HTTPD_ALIAS_DIR + '/pwdfile.txt'
             )
         )
 
@@ -625,7 +654,6 @@ class IPAOpenSSLChainValidation(IPAPlugin):
         """
         args = [paths.OPENSSL, 'verify',
                 '-verbose',
-                '-show_chain',
                 '-CAfile', paths.IPA_CA_CRT,
                 file]
 
@@ -633,7 +661,7 @@ class IPAOpenSSLChainValidation(IPAPlugin):
 
     @duration
     def check(self):
-        certlist = [paths.HTTPD_CERT_FILE]
+        certlist = list()
         if self.ca.is_configured():
             certlist.append(paths.RA_AGENT_PEM)
 
@@ -922,12 +950,12 @@ class IPACAChainExpirationCheck(IPAPlugin):
                              'certificate' % paths.IPA_CA_CRT)
             return
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(utc)
         soon = now + timedelta(days=self.config.cert_expiration_days)
         for cert in ca_certs:
             subject = DN(cert.subject)
             subject = str(subject).replace('\\;', '\\3b')
-            dt = cert.not_valid_after.replace(tzinfo=timezone.utc)
+            dt = cert.not_valid_after.replace(tzinfo=utc)
             if dt < now:
                 logger.debug("%s is expired" % subject)
                 yield Result(self, constants.CRITICAL,

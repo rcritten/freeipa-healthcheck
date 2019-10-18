@@ -33,7 +33,7 @@ class ServiceCheck(Plugin):
                 "Service '%s' is unknown to ipaplatform, skipping check" %
                 self.service_name
             )
-            return ()
+            return
 
         status = self.service.is_running(instance)
 

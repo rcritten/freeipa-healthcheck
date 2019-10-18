@@ -2,7 +2,7 @@
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
 
-import shutil
+import os
 
 from ipahealthcheck.system.plugin import SystemPlugin, registry
 from ipahealthcheck.core.plugin import duration, Result
@@ -30,12 +30,15 @@ class FileSystemSpaceCheck(SystemPlugin):
     min_free_percent = 20
 
     def get_fs_free_space(self, pathname):
-        stat = shutil.disk_usage(pathname)
-        return int(stat.free / 2**20)
+        stat = os.statvfs(pathname)
+        free = stat.f_bsize * stat.f_bfree
+        return int(free / 2**20)
 
     def get_fs_free_space_percentage(self, pathname):
-        stat = shutil.disk_usage(pathname)
-        return int(stat.free * 100 / stat.total)
+        stat = os.statvfs(pathname)
+        free = stat.f_bsize * stat.f_bfree
+        total = stat.f_bsize * stat.f_blocks
+        return int(free * 100 / total)
 
     @duration
     def check(self):

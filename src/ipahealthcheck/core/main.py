@@ -135,7 +135,7 @@ def list_sources(plugins):
         if source != plugin.__class__.__module__:
             print(plugin.__class__.__module__)
             source = plugin.__class__.__module__
-        print("  ", plugin.__class__.__name__)
+        print("   %s" % plugin.__class__.__name__)
 
     return 0
 

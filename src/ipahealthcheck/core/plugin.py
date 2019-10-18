@@ -26,7 +26,7 @@ def duration(f):
     return wrapper
 
 
-class Registry:
+class Registry(object):
     """
     A decorator that makes plugins available to the API
 
@@ -56,7 +56,7 @@ class Registry:
             yield plugincls(self)
 
 
-class Plugin:
+class Plugin(object):
     """
     Base class for all plugins.
 
@@ -101,7 +101,7 @@ class Plugin:
         self.config = dict()
 
 
-class Result:
+class Result(object):
     """
     The result of a check.
 
@@ -150,7 +150,7 @@ class Result:
                                   self.result)
 
 
-class Results:
+class Results(object):
     """
     A list-like collection of Result values.
 

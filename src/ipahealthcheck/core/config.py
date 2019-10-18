@@ -3,7 +3,7 @@
 #
 
 import logging
-from configparser import ConfigParser, ParsingError
+from six.moves.configparser import ConfigParser, ParsingError
 
 from ipahealthcheck.core.constants import CONFIG_FILE, CONFIG_SECTION
 from ipahealthcheck.core.constants import DEFAULT_CONFIG
@@ -11,7 +11,7 @@ from ipahealthcheck.core.constants import DEFAULT_CONFIG
 logger = logging.getLogger()
 
 
-class Config:
+class Config(object):
     """Helper class to manage configuration
 
        Let one treat config items as properties instead of using

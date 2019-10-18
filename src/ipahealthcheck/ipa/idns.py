@@ -34,7 +34,7 @@ class IPADNSSystemRecordsCheck(IPAPlugin):
 
     @duration
     def check(self):
-        from ipapython.dnsutil import query_srv
+        from ipahealthcheck.ipa.compat import query_srv
         from ipaserver.dns_data_management import IPASystemRecords
 
         system_records = IPASystemRecords(api)

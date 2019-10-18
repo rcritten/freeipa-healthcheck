@@ -2,8 +2,9 @@
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
 
-import configparser
+import io
 import logging
+from six.moves import configparser
 import SSSDConfig
 
 from ipahealthcheck.ipa.plugin import IPAPlugin, registry
@@ -25,7 +26,10 @@ except ImportError:
 try:
     from ipaserver.masters import ENABLED_SERVICE
 except ImportError:
-    from ipaserver.install.service import ENABLED_SERVICE
+    try:
+        from ipaserver.install.service import ENABLED_SERVICE
+    except ImportError:
+        ENABLED_SERVICE = 'enabledService'
 try:
     from ipapython.ipaldap import realm_to_serverid
 except ImportError:
@@ -122,12 +126,13 @@ class IPATrustDomainsCheck(IPAPlugin):
             logger.debug('Not a trust agent, skipping')
             return
 
-        result = ipautil.run([paths.SSSCTL, "domain-list"], raiseonerr=False,
+        result = ipautil.run(['/usr/bin/sssctl', "domain-list"],
+                             raiseonerr=False,
                              capture_output=True)
         if result.returncode != 0:
             yield Result(self, constants.ERROR,
                          key='domain_list_error',
-                         sssctl=paths.SSSCTL,
+                         sssctl='/usr/bin/sssctl',
                          error=result.error_log,
                          msg='Execution of {sssctl} failed: {error}')
             return
@@ -152,7 +157,7 @@ class IPATrustDomainsCheck(IPAPlugin):
         else:
             yield Result(self, constants.ERROR,
                          key=api.env.domain,
-                         sssctl=paths.SSSCTL,
+                         sssctl='/usr/bin/sssctl',
                          msg='{key} not in {sssctl} domain-list')
 
         trust_domains_out = ', '.join(trust_domains)
@@ -161,7 +166,7 @@ class IPATrustDomainsCheck(IPAPlugin):
         if set(trust_domains).symmetric_difference(set(sssd_domains)):
             yield Result(self, constants.ERROR,
                          key='domain-list',
-                         sssctl=paths.SSSCTL,
+                         sssctl='/usr/bin/sssctl',
                          sssd_domains=sssd_domains_out,
                          trust_domains=trust_domains_out,
                          msg='{sssctl} {key} reports mismatch: '
@@ -174,7 +179,7 @@ class IPATrustDomainsCheck(IPAPlugin):
                          trust_domains=trust_domains_out)
 
         for domain in sssd_domains:
-            args = [paths.SSSCTL, "domain-status", domain, "--online"]
+            args = ['/usr/bin/sssctl', "domain-status", domain, "--online"]
             try:
                 result = ipautil.run(args, capture_output=True)
             except Exception as e:
@@ -241,7 +246,8 @@ class IPATrustCatalogCheck(IPAPlugin):
                              sid=sid)
 
             domain = trust_domain.get('domain')
-            args = [paths.SSSCTL, "domain-status", domain, "--active-server"]
+            args = ['/usr/bin/sssctl', "domain-status", domain,
+                    "--active-server"]
             try:
                 result = ipautil.run(args, capture_output=True)
             except Exception as e:
@@ -256,7 +262,7 @@ class IPATrustCatalogCheck(IPAPlugin):
                         yield Result(self, constants.ERROR,
                                      key=txt,
                                      output=result.output.strip(),
-                                     sssctl=paths.SSSCTL,
+                                     sssctl='/usr/bin/sssctl',
                                      domain=domain,
                                      msg='{key} not found in {sssctl} '
                                      '\'domain-status\' output: {output}')
@@ -456,10 +462,9 @@ class IPATrustControllerConfCheck(IPAPlugin):
             return
 
         conf = result.output.replace('\t', '')
-        config = configparser.ConfigParser(delimiters=('='),
-                                           interpolation=None)
+        config = configparser.ConfigParser()
         try:
-            config.read_string(conf)
+            config.readfp(io.BytesIO(bytes(conf)))
         except Exception as e:
             yield Result(self, constants.ERROR,
                          key='net conf list',

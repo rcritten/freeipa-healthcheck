@@ -10,7 +10,7 @@ from ipahealthcheck.core import constants
 from ipahealthcheck.core.plugin import Result, duration
 
 
-class FileCheck:
+class FileCheck(object):
     """Generic check to validate permission and ownership of files
 
        files is a tuple of tuples. Each tuple consists of:
