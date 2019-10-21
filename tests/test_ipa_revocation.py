@@ -5,16 +5,17 @@
 from util import capture_results, CAInstance
 from util import m_api
 from base import BaseTest
-from unittest.mock import Mock
+from mock import Mock
 
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertRevocation
 from mock_certmonger import create_mock_dbus, _certmonger
 from mock_certmonger import get_expected_requests, set_requests
+from ipapython.dn import DN
 
 
-class IPACertificate:
+class IPACertificate(object):
     def __init__(self, serial_number=1):
         self.subject = 'CN=RA AGENT'
         self.issuer = 'CN=ISSUER'
@@ -23,8 +24,8 @@ class IPACertificate:
 
 class TestRevocation(BaseTest):
     patches = {
-        'ipaserver.install.certs.is_ipa_issued_cert':
-        Mock(return_value=True),
+        'ipalib.install.certstore.get_ca_subject':
+        Mock(return_value=DN('CN=ISSUER')),
         'ipalib.x509.load_certificate_from_file':
         Mock(return_value=IPACertificate()),
         'ipahealthcheck.ipa.certs.get_expected_requests':

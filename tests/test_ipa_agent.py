@@ -3,7 +3,7 @@
 #
 
 from base import BaseTest
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from util import capture_results, CAInstance
 
 from ipahealthcheck.core import config, constants
@@ -17,14 +17,14 @@ from ipapython.ipaldap import LDAPClient, LDAPEntry
 from ldap import OPT_X_SASL_SSF_MIN
 
 
-class IPACertificate:
+class IPACertificate(object):
     def __init__(self, serial_number=1):
         self.subject = 'CN=RA AGENT'
         self.issuer = 'CN=ISSUER'
         self.serial_number = serial_number
 
 
-class mock_ldap:
+class mock_ldap(object):
     SCOPE_BASE = 1
     SCOPE_ONELEVEL = 2
     SCOPE_SUBTREE = 4
@@ -40,7 +40,7 @@ class mock_ldap:
         return self.results
 
 
-class mock_ldap_conn:
+class mock_ldap_conn(object):
     def set_option(self, option, invalue):
         pass
 

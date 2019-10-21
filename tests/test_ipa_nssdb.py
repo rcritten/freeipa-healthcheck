@@ -7,10 +7,10 @@ from base import BaseTest
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertNSSTrust
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 
 
-class mock_CertDB:
+class mock_CertDB(object):
     def __init__(self, trust):
         """A dict of nickname + NSSdb trust flags"""
         self.trust = trust
@@ -120,25 +120,19 @@ class TestNSSDBTrust(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        result = self.results.results[1]
-
-        assert result.result == constants.ERROR
-        assert result.source == 'ipahealthcheck.ipa.certs'
-        assert result.check == 'IPACertNSSTrust'
-        assert result.kw.get('key') == 'subsystemCert cert-pki-ca'
-        assert result.kw.get('msg') == 'Incorrect NSS trust for ' \
-                                       'subsystemCert cert-pki-ca. Got ' \
-                                       'X,u,u expected u,u,u'
-
-        result = self.results.results[3]
-
-        assert result.result == constants.ERROR
-        assert result.source == 'ipahealthcheck.ipa.certs'
-        assert result.check == 'IPACertNSSTrust'
-        assert result.kw.get('key') == 'Server-Cert cert-pki-ca'
-        assert result.kw.get('msg') == 'Incorrect NSS trust for ' \
-                                       'Server-Cert cert-pki-ca. Got X,u,u ' \
-                                       'expected u,u,u'
+        for result in self.results.results:
+            assert result.source == 'ipahealthcheck.ipa.certs'
+            assert result.check == 'IPACertNSSTrust'
+            if result.kw.get('key') == 'subsystemCert cert-pki-ca':
+                assert result.result == constants.ERROR
+                assert result.kw.get('msg') == 'Incorrect NSS trust for ' \
+                                               'subsystemCert cert-pki-ca. ' \
+                                               'Got X,u,u expected u,u,u'
+            elif result.kw.get('key') == 'Server-Cert cert-pki-ca':
+                assert result.result == constants.ERROR
+                assert result.kw.get('msg') == 'Incorrect NSS trust for ' \
+                                               'Server-Cert cert-pki-ca. ' \
+                                               'Got X,u,u expected u,u,u'
 
         assert len(self.results) == 4
 

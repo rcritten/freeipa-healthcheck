@@ -8,7 +8,7 @@ from base import BaseTest
 from ipahealthcheck.core import constants
 from ipahealthcheck.dogtag.plugin import registry
 from ipahealthcheck.dogtag.ca import DogtagCertsConnectivityCheck
-from unittest.mock import Mock
+from mock import Mock
 from ipalib.errors import CertificateOperationError
 
 
@@ -42,7 +42,7 @@ class TestCAConnectivity(BaseTest):
         """CA connectivity check for a cert that doesn't exist"""
         m_api.Command.cert_show.reset_mock()
         m_api.Command.cert_show.side_effect = CertificateOperationError(
-            message='Certificate operation cannot be completed: '
+            message=u'Certificate operation cannot be completed: '
                     'EXCEPTION (Certificate serial number 0x0 not found)'
         )
 
@@ -62,7 +62,7 @@ class TestCAConnectivity(BaseTest):
     def test_ca_connection_down(self):
         """CA connectivity check with the CA down"""
         m_api.Command.cert_show.side_effect = CertificateOperationError(
-            message='Certificate operation cannot be completed: '
+            message=u'Certificate operation cannot be completed: '
                     'Unable to communicate with CMS (503)'
         )
 

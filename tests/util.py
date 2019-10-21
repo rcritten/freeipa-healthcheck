@@ -3,9 +3,10 @@
 #
 
 from ipahealthcheck.core.plugin import Results
-from unittest.mock import patch, Mock
+from mock import patch, Mock
 import ipalib
 from ipapython.dn import DN
+from datetime import tzinfo, timedelta
 
 
 class ExceptionNotRaised(Exception):
@@ -46,7 +47,7 @@ def capture_results(f):
     return results
 
 
-class CAInstance:
+class CAInstance(object):
     """A bare-bones CAinistance override
 
        This is needed to control whether the underlying master is
@@ -63,7 +64,7 @@ class CAInstance:
         return self.crlgen
 
 
-class KRAInstance:
+class KRAInstance(object):
     """A bare-bones KRAinistance override
 
        This is needed to control whether the underlying master is
@@ -76,7 +77,7 @@ class KRAInstance:
         return self.installed
 
 
-class ServiceBasedRole:
+class ServiceBasedRole(object):
     """A bare-bones role override
 
        This is just enough to satisfy the initialization code so
@@ -131,3 +132,20 @@ def no_exceptions(results):
     """Given Results ensure that an except was not raised"""
     for result in results.results:
         assert 'exception' not in result.kw
+
+
+# from https://docs.python.org/2/library/datetime.html
+class UTC(tzinfo):
+    """Bare representation of the UTC timezone"""
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+
+utc = UTC()

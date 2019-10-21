@@ -7,7 +7,7 @@ import posix
 from ipahealthcheck.core.files import FileCheck
 from ipahealthcheck.core import constants
 from ipahealthcheck.core.plugin import Results
-from unittest.mock import patch
+from mock import patch
 
 from util import capture_results
 

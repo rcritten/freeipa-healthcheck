@@ -29,7 +29,8 @@ class IPADNARangeCheck(IPAPlugin):
 
     @duration
     def check(self):
-        agmt = replication.ReplicationManager(api.env.realm, api.env.host, None)
+        agmt = replication.ReplicationManager(api.env.realm, api.env.host,
+                                              None)
 
         (range_start, range_max) = agmt.get_DNA_range(api.env.host)
         (next_start, next_max) = agmt.get_DNA_next_range(api.env.host)

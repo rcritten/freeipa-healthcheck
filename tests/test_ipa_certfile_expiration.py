@@ -7,14 +7,14 @@ from base import BaseTest
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertfileExpirationCheck
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from mock_certmonger import create_mock_dbus, _certmonger
 from mock_certmonger import get_expected_requests, set_requests
 
 from datetime import datetime, timedelta
 
 
-class IPACertificate:
+class IPACertificate(object):
     def __init__(self, not_valid_after, serial_number=1):
         self.subject = 'CN=RA AGENT'
         self.issuer = 'CN=ISSUER'

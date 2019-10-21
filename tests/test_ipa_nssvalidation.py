@@ -3,7 +3,7 @@
 #
 
 from base import BaseTest
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from util import capture_results, CAInstance
 from ipapython.ipautil import _RunResult
 
@@ -12,7 +12,7 @@ from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPANSSChainValidation
 
 
-class DsInstance:
+class DsInstance(object):
     def get_server_cert_nickname(self, serverid):
         return 'Server-Cert'
 
@@ -44,7 +44,7 @@ class TestNSSValidation(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        assert len(self.results) == 2
+        assert len(self.results) == 3
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
@@ -74,7 +74,7 @@ class TestNSSValidation(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        assert len(self.results) == 2
+        assert len(self.results) == 3
 
         for result in self.results.results:
             assert result.result == constants.ERROR
@@ -103,10 +103,15 @@ class TestNSSValidation(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        assert len(self.results) == 1
+        assert len(self.results) == 2
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
             assert result.source == 'ipahealthcheck.ipa.certs'
             assert result.check == 'IPANSSChainValidation'
-            assert 'slapd-' in result.kw.get('key')
+
+        result = self.results.results[0]
+        assert 'slapd-' in result.kw.get('key')
+
+        result = self.results.results[1]
+        assert result.kw.get('dbdir') == '/etc/httpd/alias'

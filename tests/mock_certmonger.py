@@ -23,8 +23,8 @@ pristine_cm_requests = [
     },
     {
         'nickname': '5678',
-        'cert-file': paths.HTTPD_CERT_FILE,
-        'key-file': paths.HTTPD_KEY_FILE,
+        'cert-file': '/var/lib/ipa/test.crt',
+        'key-file': '/var/log/ipa/test.key',
         'ca-name': 'IPA',
         'cert-storage': 'FILE',
         'cert-postsave-command': template % 'restart_httpd',
@@ -33,7 +33,7 @@ pristine_cm_requests = [
 ]
 
 
-class dbus_results:
+class dbus_results(object):
     """Class to manage the results returned by dbus"""
     def __init__(self):
         self.requests = copy.deepcopy(pristine_cm_requests)
@@ -61,7 +61,7 @@ class dbus_results:
 cm_requests = []
 
 
-class mock_property:
+class mock_property(object):
     def __init__(self, index):
         self.index = index
 
@@ -72,7 +72,7 @@ class mock_property:
         return cm_requests[self.index].get(name)
 
 
-class mock_dbus:
+class mock_dbus(object):
     """Create a fake dbus representation of a tracked certificate
 
        The index is used to look up values within the cm_requests
@@ -88,7 +88,7 @@ class mock_dbus:
         self.obj_if = mock_obj_if(self.index)
 
 
-class mock_obj_if:
+class mock_obj_if(object):
     def __init__(self, index):
         self.index = index
 
@@ -110,7 +110,7 @@ class mock_obj_if:
         return cm_requests[self.index].get('nickname')
 
 
-class _certmonger:
+class _certmonger(object):
     """An empty object, not needed directly for testing
 
        Needed to keep the real certmonger from blowing up.

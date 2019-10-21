@@ -7,10 +7,10 @@ from base import BaseTest
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.dogtag.plugin import registry
 from ipahealthcheck.dogtag.ca import DogtagCertsConfigCheck
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 
 
-class mock_Cert:
+class mock_Cert(object):
     """Fake up a certificate.
 
       The contents are the NSS nickname of the certificate.
@@ -22,7 +22,7 @@ class mock_Cert:
         return self.text.encode('utf-8')
 
 
-class mock_CertDB:
+class mock_CertDB(object):
     def __init__(self, trust):
         """A dict of nickname + NSSdb trust flags"""
         self.trust = trust
@@ -56,7 +56,7 @@ class TestCACerts(BaseTest):
             'transportCert cert-pki-kra': 'u,u,u',
         }
         mock_certdb.return_value = mock_CertDB(trust)
-        mock_directive.side_effect = [name for name, trust in trust.items()]
+        mock_directive.side_effect = [name for name, nsstrust in trust.items()]
 
         framework = object()
         registry.initialize(framework)
@@ -90,7 +90,7 @@ class TestCACerts(BaseTest):
         }
 
         # The 3rd cert won't match the results
-        nicknames = [name for name, trust in trust.items()]
+        nicknames = [name for name, nsstrust in trust.items()]
         location = nicknames.index('auditSigningCert cert-pki-ca')
         nicknames[location] = 'NOT auditSigningCert cert-pki-ca'
 
@@ -104,21 +104,16 @@ class TestCACerts(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        num = len(self.results.results)
-        for r in range(0, num):
-            if r == 2:  # skip the one that should be bad
-                continue
-            result = self.results.results[r]
-            assert result.result == constants.SUCCESS
+        for result in self.results.results:
             assert result.source == 'ipahealthcheck.dogtag.ca'
             assert result.check == 'DogtagCertsConfigCheck'
 
-        result = self.results.results[2]
+            if result.kw.get('key') == 'auditSigningCert cert-pki-ca':
+                assert result.result == constants.ERROR
+            else:
+                assert result.result == constants.SUCCESS
 
-        assert result.result == constants.ERROR
-        assert result.source == 'ipahealthcheck.dogtag.ca'
-        assert result.check == 'DogtagCertsConfigCheck'
-        assert result.kw.get('key') == 'auditSigningCert cert-pki-ca'
+        result = self.results.results[1]
 
         assert len(self.results) == 6
 

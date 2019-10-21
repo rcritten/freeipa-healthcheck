@@ -3,7 +3,7 @@
 #
 
 from base import BaseTest
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from util import capture_results, CAInstance
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
@@ -36,7 +36,7 @@ class TestOpenSSLValidation(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        assert len(self.results) == 2
+        assert len(self.results) == 1
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
@@ -65,7 +65,7 @@ class TestOpenSSLValidation(BaseTest):
         f.config = config.Config()
         self.results = capture_results(f)
 
-        assert len(self.results) == 2
+        assert len(self.results) == 1
 
         for result in self.results.results:
             assert result.result == constants.ERROR

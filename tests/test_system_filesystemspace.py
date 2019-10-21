@@ -3,7 +3,7 @@
 #
 
 from base import BaseTest
-from unittest.mock import Mock
+from mock import Mock
 from util import capture_results
 from collections import namedtuple
 
@@ -14,13 +14,14 @@ from ipahealthcheck.system.filesystemspace import FileSystemSpaceCheck
 
 class TestFileSystemNotEnoughFreeSpace(BaseTest):
 
-    usage = namedtuple('usage', ['total', 'used', 'free'])
-    usage.total = 2087428096
-    usage.used = 1628193914
-    usage.free = 459234182
+    # Only including those items used
+    usage = namedtuple('usage', ['f_bsize', 'f_blocks', 'f_bfree'])
+    usage.f_bsize = 4096
+    usage.f_blocks = 509626
+    usage.f_bfree = 112117
 
     patches = {
-        'shutil.disk_usage':
+        'os.statvfs':
         Mock(return_value=usage),
     }
 
@@ -48,13 +49,14 @@ class TestFileSystemNotEnoughFreeSpace(BaseTest):
 
 class TestFileSystemNotEnoughFreeSpacePercentage(BaseTest):
 
-    usage = namedtuple('usage', ['total', 'used', 'free'])
-    usage.total = 10437140480
-    usage.used = 8913305600
-    usage.free = 1523834880
+    # Only including those items used
+    usage = namedtuple('usage', ['f_bsize', 'f_blocks', 'f_bfree'])
+    usage.f_bsize = 4096
+    usage.f_blocks = 2548130
+    usage.f_bfree = 372030
 
     patches = {
-        'shutil.disk_usage':
+        'os.statvfs':
         Mock(return_value=usage),
     }
 
@@ -82,13 +84,14 @@ class TestFileSystemNotEnoughFreeSpacePercentage(BaseTest):
 
 class TestFileSystemEnoughFreeSpace(BaseTest):
 
-    usage = namedtuple('usage', ['total', 'used', 'free'])
-    usage.total = 10437140480
-    usage.used = 1523834880
-    usage.free = 8913305600
+    # Only including those items used
+    usage = namedtuple('usage', ['f_bsize', 'f_blocks', 'f_bfree'])
+    usage.f_bsize = 4096
+    usage.f_blocks = 2548130
+    usage.f_bfree = 2176100
 
     patches = {
-        'shutil.disk_usage':
+        'os.statvfs':
         Mock(return_value=usage),
     }
 

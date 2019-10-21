@@ -4,7 +4,7 @@
 
 import pytest
 from base import BaseTest
-from unittest.mock import patch
+from mock import patch
 from util import capture_results, m_api
 
 from ipahealthcheck.core import config, constants
@@ -17,7 +17,7 @@ from ipapython.version import NUM_VERSION
 from ipapython.ipaldap import LDAPClient, LDAPEntry
 
 
-class mock_ldap:
+class mock_ldap(object):
     SCOPE_BASE = 1
     SCOPE_ONELEVEL = 2
     SCOPE_SUBTREE = 4

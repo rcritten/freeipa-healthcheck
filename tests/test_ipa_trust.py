@@ -6,7 +6,7 @@ import sys
 
 from base import BaseTest
 from collections import namedtuple
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from util import capture_results
 from util import m_api
 
@@ -36,7 +36,7 @@ from ldap import OPT_X_SASL_SSF_MIN
 from SSSDConfig import NoOptionError
 
 
-class mock_ldap:
+class mock_ldap(object):
     SCOPE_BASE = 1
     SCOPE_ONELEVEL = 2
     SCOPE_SUBTREE = 4
@@ -57,7 +57,7 @@ class mock_ldap:
         return self.results
 
 
-class mock_ldap_conn:
+class mock_ldap_conn(object):
     def set_option(self, option, invalue):
         pass
 
@@ -70,7 +70,7 @@ class mock_ldap_conn:
         return tuple()
 
 
-class SSSDDomain:
+class SSSDDomain(object):
     def __init__(self, return_ipa_server_mode):
         self.return_ipa_server_mode = return_ipa_server_mode
 
@@ -83,7 +83,7 @@ class SSSDDomain:
             return self.return_ipa_server_mode
 
 
-class SSSDConfig():
+class SSSDConfig(object):
     def __init__(self, return_domains, return_ipa_server_mode):
         """
         Knobs to control what data the configuration returns.

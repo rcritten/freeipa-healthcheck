@@ -3,7 +3,7 @@
 #
 
 from base import BaseTest
-from unittest.mock import patch
+from mock import patch
 from util import capture_results, CAInstance
 from util import m_api
 

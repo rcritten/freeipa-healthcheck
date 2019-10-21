@@ -8,7 +8,7 @@ from base import BaseTest
 from ipahealthcheck.core import constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertTracking
-from unittest.mock import Mock
+from mock import Mock
 from mock_certmonger import create_mock_dbus, _certmonger
 from mock_certmonger import get_expected_requests, set_requests
 
@@ -51,14 +51,14 @@ class TestTracking(BaseTest):
         assert result.source == 'ipahealthcheck.ipa.certs'
         assert result.check == 'IPACertTracking'
         assert result.kw.get('msg') == "Missing tracking for " \
-            "cert-file=/var/lib/ipa/ra-agent.pem, " \
-            "key-file=/var/lib/ipa/ra-agent.key, " \
             "ca-name=dogtag-ipa-ca-renew-agent, " \
-            "cert-storage=FILE, "\
+            "cert-file=/var/lib/ipa/ra-agent.pem, " \
+            "cert-postsave-command=" \
+            "/usr/libexec/ipa/certmonger/renew_ra_cert, " \
             "cert-presave-command=" \
             "/usr/libexec/ipa/certmonger/renew_ra_cert_pre, " \
-            "cert-postsave-command=" \
-            "/usr/libexec/ipa/certmonger/renew_ra_cert"
+            "cert-storage=FILE, " \
+            "key-file=/var/lib/ipa/ra-agent.key"
 
     def test_unknown_cert_tracking(self):
         # Add a custom, unknown request

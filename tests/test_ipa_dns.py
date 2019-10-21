@@ -13,11 +13,11 @@ from dns.resolver import Answer, NoAnswer
 
 from base import BaseTest
 from util import capture_results, m_api
-from unittest.mock import patch
+from mock import patch
 
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
-from ipahealthcheck.ipa.dns import IPADNSSystemRecordsCheck
+from ipahealthcheck.ipa.idns import IPADNSSystemRecordsCheck
 
 from ipapython.dnsutil import DNSName
 from ipaserver.dns_data_management import (
@@ -55,7 +55,7 @@ def query_srv(qname, ad_records=False):
     return rdlist
 
 
-class Response:
+class Response(object):
     """Fake class so that a DNS NoAnswer can be raised"""
     def __init__(self, question=None):
         self.question = question
@@ -173,7 +173,7 @@ class TestDNSSystemRecords(BaseTest):
        2. fake_query() overrides dns.resolver.query to simulate
           A, AAAA and TXT record lookups.
     """
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_single(self, mock_query, mock_query_srv):
         """Test single CA master, all SRV records"""
@@ -202,10 +202,10 @@ class TestDNSSystemRecords(BaseTest):
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
-            assert result.source == 'ipahealthcheck.ipa.dns'
+            assert result.source == 'ipahealthcheck.ipa.idns'
             assert result.check == 'IPADNSSystemRecordsCheck'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_two(self, mock_query, mock_query_srv):
         """Test two CA masters, all SRV records"""
@@ -245,10 +245,10 @@ class TestDNSSystemRecords(BaseTest):
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
-            assert result.source == 'ipahealthcheck.ipa.dns'
+            assert result.source == 'ipahealthcheck.ipa.idns'
             assert result.check == 'IPADNSSystemRecordsCheck'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_three(self, mock_query, mock_query_srv):
         """Test three CA masters, all SRV records"""
@@ -296,10 +296,10 @@ class TestDNSSystemRecords(BaseTest):
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
-            assert result.source == 'ipahealthcheck.ipa.dns'
+            assert result.source == 'ipahealthcheck.ipa.idns'
             assert result.check == 'IPADNSSystemRecordsCheck'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_three_mixed(self, mock_query, mock_query_srv):
         """Test three masters, only one with a CA, all SRV records"""
@@ -345,9 +345,9 @@ class TestDNSSystemRecords(BaseTest):
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
-            assert result.source == 'ipahealthcheck.ipa.dns'
+            assert result.source == 'ipahealthcheck.ipa.idns'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_missing_server(self, mock_query, mock_query_srv):
         """Drop one of the masters from query_srv
@@ -405,7 +405,7 @@ class TestDNSSystemRecords(BaseTest):
         for result in warn:
             assert result.kw.get('msg') == 'Expected SRV record missing'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_missing_ipa_ca(self, mock_query, mock_query_srv):
         """Drop one of the masters from query_srv
@@ -466,7 +466,7 @@ class TestDNSSystemRecords(BaseTest):
             assert result.kw.get('count') == 2
             assert result.kw.get('expected') == 3
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_extra_srv(self, mock_query, mock_query_srv):
         """An extra SRV record set exists, report it.
@@ -526,7 +526,7 @@ class TestDNSSystemRecords(BaseTest):
             assert result.kw.get('msg') == \
                 'Unexpected SRV entry in DNS'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_bad_realm(self, mock_query, mock_query_srv):
         """Unexpected Kerberos TXT record"""
@@ -562,7 +562,7 @@ class TestDNSSystemRecords(BaseTest):
         assert result.kw.get('msg') == 'expected realm missing'
         assert result.kw.get('key') == '\"FAKE_REALM\"'
 
-    @patch('ipapython.dnsutil.query_srv')
+    @patch('ipahealthcheck.ipa.compat.query_srv')
     @patch('dns.resolver.query')
     def test_dnsrecords_one_with_ad(self, mock_query, mock_query_srv):
         mock_query.side_effect = fake_query_one
@@ -591,5 +591,5 @@ class TestDNSSystemRecords(BaseTest):
 
         for result in self.results.results:
             assert result.result == constants.SUCCESS
-            assert result.source == 'ipahealthcheck.ipa.dns'
+            assert result.source == 'ipahealthcheck.ipa.idns'
             assert result.check == 'IPADNSSystemRecordsCheck'

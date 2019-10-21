@@ -2,18 +2,18 @@
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
 
-from util import capture_results
+from util import capture_results, utc
 from base import BaseTest
 from ipaplatform.paths import paths
 from ipahealthcheck.core import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertmongerExpirationCheck
 from ipahealthcheck.ipa.certs import IPACAChainExpirationCheck
-from unittest.mock import Mock, patch
+from mock import Mock, patch
 from mock_certmonger import create_mock_dbus, _certmonger
 from mock_certmonger import get_expected_requests, set_requests
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 
 class TestExpiration(BaseTest):
@@ -54,13 +54,15 @@ class TestExpiration(BaseTest):
         assert result.kw.get('key') == '5678'
 
     def test_expiration_warning(self):
-        warning = datetime.now(timezone.utc) + timedelta(days=20)
+        warning = datetime.now(utc) + timedelta(days=20)
+        epoch = datetime.fromtimestamp(0, utc)
+
         replaceme = {
             'nickname': '7777',
             'cert-file': paths.RA_AGENT_PEM,
             'key-file': paths.RA_AGENT_KEY,
             'ca-name': 'dogtag-ipa-ca-renew-agent',
-            'not-valid-after': int(warning.timestamp()),
+            'not-valid-after': int((warning - epoch).total_seconds())
         }
 
         set_requests(remove=0, add=replaceme)
@@ -89,7 +91,7 @@ class TestExpiration(BaseTest):
         assert 'expires in 19 days' in result.kw.get('msg')
 
 
-class FakeIPACertificate:
+class FakeIPACertificate(object):
     def __init__(self, cert, backend=None, subject=None, not_after=None):
         self.subj = subject
         self.not_after = not_after
@@ -113,12 +115,12 @@ class TestChainExpiration(BaseTest):
             FakeIPACertificate(
                 None,
                 subject=self.sub_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=20)
+                not_after=datetime.now(utc) + timedelta(days=20)
             ),
             FakeIPACertificate(
                 None,
                 subject=self.root_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=20)
+                not_after=datetime.now(utc) + timedelta(days=20)
             )
         ]
         framework = object()
@@ -149,13 +151,13 @@ class TestChainExpiration(BaseTest):
             FakeIPACertificate(
                 None,
                 subject=self.sub_ca,
-                not_after=datetime.now(timezone.utc) +
+                not_after=datetime.now(utc) +
                 timedelta(days=3, minutes=1)
             ),
             FakeIPACertificate(
                 None,
                 subject=self.root_ca,
-                not_after=datetime.now(timezone.utc) +
+                not_after=datetime.now(utc) +
                 timedelta(days=3, minutes=1)
             )
         ]
@@ -191,12 +193,12 @@ class TestChainExpiration(BaseTest):
             FakeIPACertificate(
                 None,
                 subject=self.sub_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=-3)
+                not_after=datetime.now(utc) + timedelta(days=-3)
             ),
             FakeIPACertificate(
                 None,
                 subject=self.root_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=-3)
+                not_after=datetime.now(utc) + timedelta(days=-3)
             )
         ]
         framework = object()
@@ -229,12 +231,12 @@ class TestChainExpiration(BaseTest):
             FakeIPACertificate(
                 None,
                 subject=self.sub_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=-3)
+                not_after=datetime.now(utc) + timedelta(days=-3)
             ),
             FakeIPACertificate(
                 None,
                 subject=self.root_ca,
-                not_after=datetime.now(timezone.utc) + timedelta(days=20)
+                not_after=datetime.now(utc) + timedelta(days=20)
             )
         ]
         framework = object()

@@ -1,7 +1,8 @@
 #
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
-from unittest import mock, TestCase
+from unittest import TestCase
+import mock
 from util import no_exceptions
 from util import ADtrustBasedRole, ServiceBasedRole
 
