@@ -6,17 +6,17 @@ services:
     - docker
 
 python:
-    - 3.6
+    - 2.6
 
 cache: pip
 
 before_install:
-    - docker pull fedora:29
+    - docker pull fedora:27
 
 install:
-    - pip3 install --upgrade pip
-    - pip3 install pycodestyle tox
+    - pip install --upgrade pip
+    - pip install pycodestyle tox
 
 script:
     - tox -epep8,flake8
-    - docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ fedora:29 /bin/sh -c "dnf -y install freeipa-server freeipa-server-trust-ad tox python3-pytest; cd /root/src; tox -epy3"
+    - docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ fedora:29 /bin/sh -c "dnf -y install freeipa-server freeipa-server-trust-ad python2-ipaserver python2-ipalib python2-mock python2-libsss_nss_idmap python2-dns tox python2-pytest; cd /root/src; tox -epy2"
