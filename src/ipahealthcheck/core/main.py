@@ -29,8 +29,11 @@ else:
 
 
 def find_registries():
+    # setuptools 11.3 deprecated support for the require parameter to
+    # load(), and introduced the new resolve() method instead.
     return {
-        ep.name: ep.resolve()
+        ep.name:
+            ep.resolve() if hasattr(ep, "resolve") else ep.load(require=False)
         for ep in pkg_resources.iter_entry_points('ipahealthcheck.registry')
     }
 
