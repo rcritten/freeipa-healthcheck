@@ -7,7 +7,7 @@ from util import m_api
 from base import BaseTest
 from unittest.mock import Mock
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertRevocation
 from mock_certmonger import create_mock_dbus, _certmonger

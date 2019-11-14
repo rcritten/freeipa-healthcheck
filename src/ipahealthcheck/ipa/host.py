@@ -8,8 +8,8 @@ import os
 import tempfile
 
 from ipahealthcheck.ipa.plugin import IPAPlugin, registry
-from ipahealthcheck.core.plugin import Result, duration
-from ipahealthcheck.core import constants
+from healthcheckcore.plugin import Result, duration
+from healthcheckcore import constants
 
 from ipalib import api
 from ipalib.install.kinit import kinit_keytab

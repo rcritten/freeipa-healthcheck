@@ -7,7 +7,7 @@ from base import BaseTest
 from unittest.mock import patch
 from util import capture_results, m_api
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ds.plugin import registry
 from ipahealthcheck.ds.replication import ReplicationConflictCheck
 

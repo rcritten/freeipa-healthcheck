@@ -4,7 +4,7 @@
 
 from util import capture_results, CAInstance
 from base import BaseTest
-from ipahealthcheck.core import constants
+from healthcheckcore import constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertmongerCA
 from unittest.mock import Mock, patch

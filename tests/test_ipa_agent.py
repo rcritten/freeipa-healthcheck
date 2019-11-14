@@ -6,7 +6,7 @@ from base import BaseTest
 from unittest.mock import Mock, patch
 from util import capture_results, CAInstance
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPARAAgent
 

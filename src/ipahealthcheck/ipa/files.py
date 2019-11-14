@@ -5,7 +5,7 @@
 import logging
 import os
 
-from ipahealthcheck.core.files import FileCheck
+from healthcheckcore.files import FileCheck
 from ipahealthcheck.ipa.plugin import IPAPlugin, registry
 
 from ipalib import api, errors

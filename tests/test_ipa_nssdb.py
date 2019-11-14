@@ -4,7 +4,7 @@
 
 from util import capture_results, CAInstance, KRAInstance
 from base import BaseTest
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertNSSTrust
 from unittest.mock import Mock, patch

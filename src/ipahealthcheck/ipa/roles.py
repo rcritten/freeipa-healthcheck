@@ -5,9 +5,9 @@
 import logging
 
 from ipahealthcheck.ipa.plugin import IPAPlugin, registry
-from ipahealthcheck.core.plugin import Result
-from ipahealthcheck.core.plugin import duration
-from ipahealthcheck.core import constants
+from healthcheckcore.plugin import Result
+from healthcheckcore.plugin import duration
+from healthcheckcore import constants
 
 from ipalib import api
 

@@ -5,8 +5,8 @@
 import shutil
 
 from ipahealthcheck.system.plugin import SystemPlugin, registry
-from ipahealthcheck.core.plugin import duration, Result
-from ipahealthcheck.core import constants
+from healthcheckcore.plugin import duration, Result
+from healthcheckcore import constants
 
 
 @registry

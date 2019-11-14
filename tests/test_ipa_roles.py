@@ -7,7 +7,7 @@ from unittest.mock import patch
 from util import capture_results, CAInstance
 from util import m_api
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.roles import (IPACRLManagerCheck,
                                       IPARenewalMasterCheck)

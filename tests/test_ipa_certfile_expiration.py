@@ -4,7 +4,7 @@
 
 from util import capture_results
 from base import BaseTest
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertfileExpirationCheck
 from unittest.mock import Mock, patch

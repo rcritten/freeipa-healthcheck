@@ -2,7 +2,7 @@
 # Copyright (C) 2019 FreeIPA Contributors see COPYING for license
 #
 
-from ipahealthcheck.core.plugin import Results
+from healthcheckcore.plugin import Results
 from unittest.mock import patch, Mock
 import ipalib
 from ipapython.dn import DN

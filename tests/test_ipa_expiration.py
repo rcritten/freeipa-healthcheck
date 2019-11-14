@@ -5,7 +5,7 @@
 from util import capture_results
 from base import BaseTest
 from ipaplatform.paths import paths
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.certs import IPACertmongerExpirationCheck
 from ipahealthcheck.ipa.certs import IPACAChainExpirationCheck

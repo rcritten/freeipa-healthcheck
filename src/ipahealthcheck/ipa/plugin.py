@@ -13,7 +13,7 @@ from ipaserver.install import dsinstance
 from ipaserver.install import httpinstance
 from ipaserver.install import installutils
 
-from ipahealthcheck.core.plugin import Plugin, Registry
+from healthcheckcore.plugin import Plugin, Registry
 
 
 logging.getLogger()

@@ -7,7 +7,7 @@ from unittest.mock import Mock
 from util import capture_results
 from collections import namedtuple
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.system.plugin import registry
 from ipahealthcheck.system.filesystemspace import FileSystemSpaceCheck
 

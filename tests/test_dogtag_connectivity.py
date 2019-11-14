@@ -5,7 +5,7 @@
 from util import capture_results, CAInstance
 from util import m_api
 from base import BaseTest
-from ipahealthcheck.core import constants
+from healthcheckcore import constants
 from ipahealthcheck.dogtag.plugin import registry
 from ipahealthcheck.dogtag.ca import DogtagCertsConnectivityCheck
 from unittest.mock import Mock

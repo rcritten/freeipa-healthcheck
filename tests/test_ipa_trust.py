@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 from util import capture_results
 from util import m_api
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.trust import (IPATrustAgentCheck,
                                       IPATrustDomainsCheck,

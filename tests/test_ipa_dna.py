@@ -6,7 +6,7 @@ from base import BaseTest
 from unittest.mock import patch
 from util import capture_results
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.dna import IPADNARangeCheck
 

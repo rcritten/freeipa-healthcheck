@@ -3,8 +3,8 @@
 #
 
 import socket
-from ipahealthcheck.core import constants
-from ipahealthcheck.core.plugin import Result, duration
+from healthcheckcore import constants
+from healthcheckcore.plugin import Result, duration
 from ipahealthcheck.meta.plugin import Plugin, registry
 from ipapython.version import VERSION, API_VERSION
 

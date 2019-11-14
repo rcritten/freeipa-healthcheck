@@ -15,7 +15,7 @@ from base import BaseTest
 from util import capture_results, m_api
 from unittest.mock import patch
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.dns import IPADNSSystemRecordsCheck
 

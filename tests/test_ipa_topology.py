@@ -6,7 +6,7 @@ from util import capture_results
 from util import m_api
 from base import BaseTest
 
-from ipahealthcheck.core import config, constants
+from healthcheckcore import config, constants
 from ipahealthcheck.ipa.plugin import registry
 from ipahealthcheck.ipa.topology import IPATopologyDomainCheck
 
