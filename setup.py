@@ -56,6 +56,7 @@ setup(
         # plugin modules for ipahealthcheck.system registry
         'ipahealthcheck.system': [
             'filesystemspace = ipahealthcheck.system.filesystemspace',
+            'selinuxcontext = ipahealthcheck.system.selinuxcontext',
         ],
     },
     classifiers=[
